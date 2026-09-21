@@ -1,0 +1,311 @@
+@{
+    ViewData["Title"] = "Home";
+}
+
+<style>
+    /* ── Design tokens ─────────────────────────────────────── */
+    :root {
+        --border-subtle  : #e5e7eb;
+        --text-primary   : #111827;
+        --text-secondary : #6b7280;
+        --text-tertiary  : #9ca3af;
+        --surface        : #ffffff;
+        --surface-muted  : #f9fafb;
+        --accent         : #2563eb;
+        --accent-hover   : #1d4ed8;
+        --radius-card    : 10px;
+    }
+
+    /* ── Page wrapper ──────────────────────────────────────── */
+    .landing-page {
+        padding-top: 5rem;
+        padding-bottom: 5rem;
+    }
+
+    /* ── Pre-header badge ──────────────────────────────────── */
+    .pre-header-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 999px;
+        padding: .28rem .9rem;
+        font-size: .6875rem;
+        font-weight: 700;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: #1d4ed8;
+        margin-bottom: 1.75rem;
+    }
+    .pre-header-badge .badge-dot {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: #2563eb;
+        flex-shrink: 0;
+    }
+
+    /* ── Hero section ──────────────────────────────────────── */
+    .hero-section { text-align: center; }
+
+    .hero-title {
+        font-size: clamp(2rem, 5vw, 3.25rem);
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: -.03em;
+        line-height: 1.15;
+        margin-bottom: 1.25rem;
+        max-width: 640px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hero-description {
+        font-size: 1.0625rem;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        max-width: 500px;
+        margin: 0 auto 2.25rem;
+    }
+
+    /* ── CTA buttons ───────────────────────────────────────── */
+    .btn-cta-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        background: var(--accent);
+        color: #fff;
+        border: 1px solid var(--accent);
+        border-radius: 7px;
+        font-size: .9375rem;
+        font-weight: 500;
+        padding: .65rem 1.6rem;
+        text-decoration: none;
+        box-shadow: 0 1px 3px rgba(37,99,235,.25), 0 4px 12px rgba(37,99,235,.18);
+        transition: background .15s ease, box-shadow .15s ease, transform .15s ease;
+    }
+    .btn-cta-primary:hover {
+        background: var(--accent-hover);
+        border-color: var(--accent-hover);
+        color: #fff;
+        box-shadow: 0 2px 6px rgba(37,99,235,.3), 0 6px 20px rgba(37,99,235,.22);
+        transform: translateY(-1px);
+    }
+    .btn-cta-primary svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    .btn-cta-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        background: var(--surface);
+        color: var(--text-primary);
+        border: 1px solid var(--border-subtle);
+        border-radius: 7px;
+        font-size: .9375rem;
+        font-weight: 500;
+        padding: .65rem 1.6rem;
+        text-decoration: none;
+        transition: border-color .15s ease, background .15s ease, transform .15s ease;
+    }
+    .btn-cta-secondary:hover {
+        background: var(--surface-muted);
+        border-color: #d1d5db;
+        color: var(--text-primary);
+        transform: translateY(-1px);
+    }
+    .btn-cta-secondary svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    /* ── Divider ───────────────────────────────────────────── */
+    .section-divider {
+        border: none;
+        border-top: 1px solid var(--border-subtle);
+        margin: 4rem 0;
+    }
+
+    /* ── Section label ─────────────────────────────────────── */
+    .section-eyebrow {
+        font-size: .6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .12em;
+        color: var(--text-tertiary);
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    /* ── Feature cards ─────────────────────────────────────── */
+    .feature-card {
+        background: var(--surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-card);
+        padding: 1.75rem 1.75rem 1.5rem;
+        height: 100%;
+        transition: box-shadow .2s ease, transform .2s ease;
+    }
+    .feature-card:hover {
+        box-shadow: 0 4px 20px rgba(0,0,0,.08);
+        transform: translateY(-2px);
+    }
+
+    .feature-icon-wrap {
+        width: 38px; height: 38px;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 1.1rem;
+        flex-shrink: 0;
+    }
+    .feature-icon-wrap svg { width: 18px; height: 18px; }
+
+    .feature-category {
+        font-size: .6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        color: var(--text-tertiary);
+        margin-bottom: .4rem;
+    }
+
+    .feature-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        letter-spacing: -.01em;
+        margin-bottom: .6rem;
+    }
+
+    .feature-desc {
+        font-size: .875rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* ── Footer strip ──────────────────────────────────────── */
+    .landing-footer-strip {
+        text-align: center;
+        margin-top: 4rem;
+        padding-top: 2.5rem;
+        border-top: 1px solid var(--border-subtle);
+    }
+    .landing-footer-strip p {
+        font-size: .8125rem;
+        color: var(--text-tertiary);
+        margin: 0;
+    }
+    .landing-footer-strip strong { color: var(--text-secondary); font-weight: 500; }
+</style>
+
+<div class="container landing-page">
+
+    <!-- ── Hero ───────────────────────────────────────────── -->
+    <div class="hero-section">
+
+        <div class="pre-header-badge">
+            <span class="badge-dot"></span>
+            Student Career Portal &mdash; Placement Cell
+        </div>
+
+        <h1 class="hero-title">
+            University Career &amp; Placement<br>Management System
+        </h1>
+
+        <p class="hero-description">
+            Empowering students to track full recruitment lifecycles, manage technical
+            interview rounds, monitor offer statuses, and secure enterprise placements &mdash; all from one dashboard.
+        </p>
+
+        <div class="d-flex flex-wrap gap-3 justify-content-center">
+            <a class="btn-cta-primary"
+               asp-controller="JobApplications"
+               asp-action="Index"
+               id="btn-open-dashboard">
+                <!-- Grid icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"/>
+                </svg>
+                Open Dashboard
+            </a>
+            <a class="btn-cta-secondary"
+               asp-controller="JobApplications"
+               asp-action="Create"
+               id="btn-add-application">
+                <!-- Plus icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                </svg>
+                Add Application
+            </a>
+        </div>
+
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- ── Feature cards ──────────────────────────────────── -->
+    <p class="section-eyebrow">Why PlacementTracker</p>
+
+    <div class="row g-3">
+
+        <!-- Card 1: Centralized Logs -->
+        <div class="col-12 col-md-4">
+            <div class="feature-card" id="feature-centralized">
+                <div class="feature-icon-wrap" style="background:#eff6ff;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         stroke-width="1.75" stroke="#2563eb">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776"/>
+                    </svg>
+                </div>
+                <p class="feature-category">Centralized Logs</p>
+                <h3 class="feature-title">One place for every application</h3>
+                <p class="feature-desc">
+                    Store every company, role, interview round, and note in a single structured view. No more scattered spreadsheets.
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 2: Real-Time Tracking -->
+        <div class="col-12 col-md-4">
+            <div class="feature-card" id="feature-tracking">
+                <div class="feature-icon-wrap" style="background:#f0fdf4;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         stroke-width="1.75" stroke="#16a34a">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/>
+                    </svg>
+                </div>
+                <p class="feature-category">Real-Time Tracking</p>
+                <h3 class="feature-title">Status at a glance, always</h3>
+                <p class="feature-desc">
+                    Instantly update statuses from Applied to Interview to Selected. Visual pipeline metrics keep you informed at all times.
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 3: Local Persistence -->
+        <div class="col-12 col-md-4">
+            <div class="feature-card" id="feature-persistence">
+                <div class="feature-icon-wrap" style="background:#fdf4ff;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         stroke-width="1.75" stroke="#9333ea">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/>
+                    </svg>
+                </div>
+                <p class="feature-category">Local Persistence</p>
+                <h3 class="feature-title">Fast, reliable, private by default</h3>
+                <p class="feature-desc">
+                    Built on ASP.NET Core and SQLite. No cloud dependency, no data leaving your machine — just clean, performant storage.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── Footer strip ────────────────────────────────────── -->
+    <div class="landing-footer-strip">
+        <p>Built with <strong>ASP.NET Core MVC</strong> &middot; Entity Framework Core &middot; SQLite &middot; Bootstrap 5</p>
+    </div>
+
+</div>

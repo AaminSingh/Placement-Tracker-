@@ -1,0 +1,528 @@
+﻿@model IEnumerable<PlacementTracker.Models.JobApplication>
+
+@{
+    ViewData["Title"] = "Job Applications";
+
+    var totalApplications = Model.Count();
+    var totalInterviews   = Model.Count(a => a.Status == "Interview");
+    var totalOffers       = Model.Count(a => a.Status == "Selected");
+}
+
+<style>
+    /* -- Design tokens ------------------------------------------------- */
+    :root {
+        --border-subtle  : #e5e7eb;
+        --text-primary   : #111827;
+        --text-secondary : #6b7280;
+        --text-tertiary  : #9ca3af;
+        --surface        : #ffffff;
+        --surface-muted  : #f9fafb;
+        --accent         : #2563eb;
+        --accent-hover   : #1d4ed8;
+        --radius-card    : 10px;
+        --radius-badge   : 999px;
+    }
+
+    /* -- Page chrome ---------------------------------------------------- */
+    .pt-page { padding-top: 2rem; padding-bottom: 3rem; }
+
+    /* -- Page header ---------------------------------------------------- */
+    .page-header {
+        border-bottom: 1px solid var(--border-subtle);
+        padding-bottom: 1.25rem;
+        margin-bottom: 1.75rem;
+    }
+    .page-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        letter-spacing: -.015em;
+        margin: 0;
+    }
+    .page-subtitle {
+        font-size: .8125rem;
+        color: var(--text-secondary);
+        margin: .2rem 0 0;
+    }
+
+    /* -- Stat tiles ----------------------------------------------------- */
+    .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-card);
+        padding: 1.25rem 1.5rem;
+        transition: box-shadow .18s ease;
+    }
+    .stat-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,.07); }
+    .stat-icon {
+        width: 36px; height: 36px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 8px;
+        flex-shrink: 0;
+    }
+    .stat-icon svg { width: 18px; height: 18px; }
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1;
+        letter-spacing: -.03em;
+    }
+    .stat-label {
+        font-size: .7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: var(--text-secondary);
+        margin-top: .25rem;
+    }
+
+    /* -- Chart cards ---------------------------------------------------- */
+    .chart-card {
+        background: var(--surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-card);
+        overflow: hidden;
+    }
+    .chart-card-header {
+        padding: .875rem 1.25rem;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+    .chart-card-title {
+        font-size: .8125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        letter-spacing: -.01em;
+        margin: 0;
+    }
+    .chart-card-sub {
+        font-size: .7rem;
+        color: var(--text-tertiary);
+        margin: .1rem 0 0;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        font-weight: 600;
+    }
+    .chart-card-body {
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* -- Table card ----------------------------------------------------- */
+    .table-card {
+        background: var(--surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-card);
+        overflow: hidden;
+    }
+    .table-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-subtle);
+        background: var(--surface);
+    }
+    .table-card-title {
+        font-size: .9375rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        letter-spacing: -.01em;
+        margin: 0;
+    }
+
+    /* -- Table ---------------------------------------------------------- */
+    .data-table { margin-bottom: 0; }
+    .data-table thead th {
+        background: var(--surface-muted);
+        font-size: .6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .09em;
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--border-subtle);
+        padding: .75rem 1rem;
+        white-space: nowrap;
+    }
+    .data-table thead th:first-child { padding-left: 1.5rem; }
+    .data-table tbody td {
+        font-size: .875rem;
+        color: var(--text-primary);
+        padding: .875rem 1rem;
+        border-bottom: 1px solid var(--border-subtle);
+        vertical-align: middle;
+    }
+    .data-table tbody td:first-child { padding-left: 1.5rem; }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody tr:hover td { background: var(--surface-muted); }
+    .col-company { font-weight: 500; color: var(--text-primary); }
+    .col-role    { color: var(--text-secondary); }
+    .col-date    { color: var(--text-tertiary); font-size: .8125rem; font-variant-numeric: tabular-nums; }
+    .col-notes   { color: var(--text-secondary); font-size: .8125rem; max-width: 200px; }
+    .col-num     { color: var(--text-tertiary); font-size: .8125rem; font-variant-numeric: tabular-nums; }
+
+    /* -- Action links --------------------------------------------------- */
+    .action-delete-link {
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        font-size: .8rem;
+        font-weight: 500;
+        color: #9ca3af;
+        text-decoration: none;
+        padding: .3rem .55rem;
+        border-radius: 6px;
+        transition: color .15s ease, background .15s ease;
+        white-space: nowrap;
+    }
+    .action-delete-link svg { width: 13px; height: 13px; flex-shrink: 0; }
+    .action-delete-link:hover { color: #dc2626; background: #fef2f2; }
+
+    /* -- Status badges -------------------------------------------------- */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        padding: .25em .7em;
+        border-radius: var(--radius-badge);
+        font-size: .75rem;
+        font-weight: 500;
+        letter-spacing: .01em;
+        line-height: 1.6;
+    }
+    .status-badge .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .badge-applied   { background: #fefce8; color: #854d0e; }
+    .badge-applied   .dot { background: #ca8a04; }
+    .badge-interview { background: #eff6ff; color: #1e40af; }
+    .badge-interview .dot { background: #3b82f6; }
+    .badge-selected  { background: #f0fdf4; color: #166534; }
+    .badge-selected  .dot { background: #16a34a; }
+    .badge-rejected  { background: #fef2f2; color: #991b1b; }
+    .badge-rejected  .dot { background: #ef4444; }
+    .badge-default   { background: #f3f4f6; color: #374151; }
+    .badge-default   .dot { background: #9ca3af; }
+
+    /* -- Count chip ----------------------------------------------------- */
+    .count-chip {
+        background: var(--surface-muted);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-badge);
+        font-size: .75rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        padding: .2em .75em;
+    }
+
+    /* -- CTA button ----------------------------------------------------- */
+    .btn-primary-cta {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 7px;
+        font-size: .875rem;
+        font-weight: 500;
+        padding: .5rem 1.1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        text-decoration: none;
+        transition: background .15s ease, box-shadow .15s ease;
+    }
+    .btn-primary-cta:hover {
+        background: var(--accent-hover);
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(37,99,235,.3);
+    }
+    .btn-primary-cta svg { width: 15px; height: 15px; }
+
+    /* -- Empty state ---------------------------------------------------- */
+    .empty-state { padding: 4rem 1rem; text-align: center; }
+    .empty-state-icon {
+        width: 44px; height: 44px;
+        color: var(--text-tertiary);
+        margin: 0 auto 1rem;
+        display: block;
+    }
+    .empty-state-title {
+        font-size: .9375rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: .35rem;
+    }
+    .empty-state-sub { font-size: .8125rem; color: var(--text-secondary); margin: 0; }
+</style>
+
+<div class="container pt-page">
+
+    <!-- Page Header -->
+    <div class="page-header d-flex align-items-start justify-content-between flex-wrap gap-3">
+        <div>
+            <h1 class="page-title">Applications</h1>
+            <p class="page-subtitle">Track and manage your placement applications</p>
+        </div>
+        <a asp-action="Create" class="btn-primary-cta" id="btn-add-application">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+            </svg>
+            New Application
+        </a>
+    </div>
+
+    <!-- Stat Tiles -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-12 col-sm-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="stat-icon" style="background:#eff6ff;">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="#2563eb">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.429 9.75 2.25 12l4.179 2.25m0-4.5 5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L21.75 12l-4.179 2.25m0 0 4.179 2.25L12 21.75 2.25 16.5l4.179-2.25m11.142 0-5.571 3-5.571-3"/>
+                        </svg>
+                    </div>
+                    <span class="stat-label">Total Applications</span>
+                </div>
+                <div class="stat-value" id="metric-total">@totalApplications</div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="stat-icon" style="background:#f0fdf4;">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="#16a34a">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/>
+                        </svg>
+                    </div>
+                    <span class="stat-label">Interviews</span>
+                </div>
+                <div class="stat-value" id="metric-interviews">@totalInterviews</div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="stat-icon" style="background:#fdf4ff;">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="#9333ea">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
+                        </svg>
+                    </div>
+                    <span class="stat-label">Offers Received</span>
+                </div>
+                <div class="stat-value" id="metric-offers">@totalOffers</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Analytics Charts (only when data exists) -->
+    @if (Model.Any())
+    {
+        <div class="row g-3 mb-4">
+
+            <!-- Doughnut: Status breakdown -->
+            <div class="col-12 col-md-5">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <p class="chart-card-title">Status Breakdown</p>
+                        <p class="chart-card-sub">By application stage</p>
+                    </div>
+                    <div class="chart-card-body" style="height:230px;">
+                        <canvas id="chartDoughnut" width="200" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Horizontal Bar: Pipeline overview -->
+            <div class="col-12 col-md-7">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <p class="chart-card-title">Application Pipeline</p>
+                        <p class="chart-card-sub">Count per status</p>
+                    </div>
+                    <div class="chart-card-body" style="height:230px; padding:1.25rem 1.5rem 1.5rem;">
+                        <canvas id="chartBar"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    }
+
+    <!-- Table Card -->
+    <div class="table-card">
+        <div class="table-card-header">
+            <h2 class="table-card-title">All Applications</h2>
+            <span class="count-chip" id="app-count">
+                @totalApplications @(totalApplications == 1 ? "record" : "records")
+            </span>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <svg class="empty-state-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.4" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9z"/>
+                </svg>
+                <p class="empty-state-title">No applications yet</p>
+                <p class="empty-state-sub">Click <strong>New Application</strong> to add your first entry.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table data-table table-hover align-middle mb-0" id="applications-table">
+                    <thead>
+                        <tr>
+                            <th style="width:48px;">#</th>
+                            <th>Company</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Date Applied</th>
+                            <th>Notes</th>
+                            <th style="width:90px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int rowNum = 1; }
+                        @foreach (var item in Model)
+                        {
+                            string badgeClass = item.Status switch
+                            {
+                                "Applied"   => "badge-applied",
+                                "Interview" => "badge-interview",
+                                "Selected"  => "badge-selected",
+                                "Rejected"  => "badge-rejected",
+                                _           => "badge-default"
+                            };
+                            <tr>
+                                <td class="col-num">@rowNum</td>
+                                <td class="col-company">@item.CompanyName</td>
+                                <td class="col-role">@item.JobRole</td>
+                                <td>
+                                    <span class="status-badge @badgeClass">
+                                        <span class="dot"></span>
+                                        @item.Status
+                                    </span>
+                                </td>
+                                <td class="col-date">@item.AppliedDate.ToString("dd MMM yyyy")</td>
+                                <td class="col-notes text-truncate">
+                                    @(string.IsNullOrWhiteSpace(item.Notes) ? "-" : item.Notes)
+                                </td>
+                                <td>
+                                    <a asp-action="Delete"
+                                       asp-route-id="@item.Id"
+                                       class="action-delete-link"
+                                       onclick="return confirm('Delete this application? This cannot be undone.');"
+                                       title="Delete application">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                             stroke-width="1.75" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
+                                        </svg>
+                                        Delete
+                                    </a>
+                                </td>
+                            </tr>
+                            rowNum++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    var counts = {
+        Applied:   @Model.Count(a => a.Status == "Applied"),
+        Interview: @Model.Count(a => a.Status == "Interview"),
+        Selected:  @Model.Count(a => a.Status == "Selected"),
+        Rejected:  @Model.Count(a => a.Status == "Rejected")
+    };
+
+    var palette = {
+        Applied:   { bg: '#fefce8', border: '#ca8a04' },
+        Interview: { bg: '#eff6ff', border: '#3b82f6' },
+        Selected:  { bg: '#f0fdf4', border: '#16a34a' },
+        Rejected:  { bg: '#fef2f2', border: '#ef4444' }
+    };
+
+    var labels       = Object.keys(counts);
+    var values       = Object.values(counts);
+    var bgColors     = labels.map(function(l){ return palette[l].bg; });
+    var borderColors = labels.map(function(l){ return palette[l].border; });
+
+    Chart.defaults.font.family = "system-ui, -apple-system, 'Segoe UI', sans-serif";
+    Chart.defaults.font.size   = 12;
+    Chart.defaults.color       = '#6b7280';
+
+    /* Doughnut */
+    var dCtx = document.getElementById('chartDoughnut');
+    if (dCtx) {
+        new Chart(dCtx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{ data: values, backgroundColor: bgColors, borderColor: borderColors, borderWidth: 1.5, hoverOffset: 6 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '68%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { boxWidth: 10, boxHeight: 10, borderRadius: 999, useBorderRadius: true, padding: 14, color: '#374151', font: { size: 12, weight: '500' } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                var total = ctx.dataset.data.reduce(function(a,b){ return a+b; }, 0);
+                                var pct = total > 0 ? Math.round(ctx.parsed / total * 100) : 0;
+                                return '  ' + ctx.parsed + ' (' + pct + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /* Horizontal Bar */
+    var bCtx = document.getElementById('chartBar');
+    if (bCtx) {
+        new Chart(bCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{ label: 'Applications', data: values, backgroundColor: bgColors, borderColor: borderColors, borderWidth: 1.5, borderRadius: 5, borderSkipped: false }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx){ return '  ' + ctx.parsed.x + ' applications'; }
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { color: '#f3f4f6' }, border: { display: false }, ticks: { precision: 0, color: '#9ca3af' } },
+                    y: { grid: { display: false }, border: { display: false }, ticks: { color: '#374151', font: { weight: '500' } } }
+                }
+            }
+        });
+    }
+})();
+</script>
+}

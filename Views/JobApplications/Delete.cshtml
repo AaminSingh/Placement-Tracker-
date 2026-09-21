@@ -1,0 +1,299 @@
+﻿@model PlacementTracker.Models.JobApplication
+
+@{
+    ViewData["Title"] = "Delete Application";
+}
+
+<style>
+    /* ── Design tokens (scoped) ─────────────────────────────────── */
+    :root {
+        --border-subtle  : #e5e7eb;
+        --text-primary   : #111827;
+        --text-secondary : #6b7280;
+        --text-tertiary  : #9ca3af;
+        --surface        : #ffffff;
+        --surface-muted  : #f9fafb;
+        --radius-card    : 10px;
+        --radius-input   : 7px;
+        --danger         : #dc2626;
+        --danger-hover   : #b91c1c;
+        --danger-surface : #fef2f2;
+        --danger-border  : #fecaca;
+    }
+
+    .pt-page { padding-top: 2rem; padding-bottom: 3rem; }
+
+    /* ── Page header ────────────────────────────────────────────── */
+    .page-header {
+        border-bottom: 1px solid var(--border-subtle);
+        padding-bottom: 1.25rem;
+        margin-bottom: 1.75rem;
+    }
+    .page-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        letter-spacing: -.015em;
+        margin: 0;
+    }
+    .page-subtitle {
+        font-size: .8125rem;
+        color: var(--text-secondary);
+        margin: .2rem 0 0;
+    }
+
+    /* ── Confirmation card ──────────────────────────────────────── */
+    .confirm-card {
+        background: var(--surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-card);
+        overflow: hidden;
+    }
+
+    /* ── Warning banner ─────────────────────────────────────────── */
+    .warning-banner {
+        background: var(--danger-surface);
+        border-bottom: 1px solid var(--danger-border);
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: .875rem;
+    }
+    .warning-icon {
+        width: 36px; height: 36px; flex-shrink: 0;
+        background: #fee2e2;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .warning-icon svg { width: 18px; height: 18px; color: var(--danger); }
+    .warning-title {
+        font-size: .9rem;
+        font-weight: 600;
+        color: #991b1b;
+        margin: 0 0 .2rem;
+    }
+    .warning-desc {
+        font-size: .8125rem;
+        color: #b91c1c;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    /* ── Details section ────────────────────────────────────────── */
+    .details-section { padding: 1.5rem; }
+
+    .section-eyebrow {
+        font-size: .6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .09em;
+        color: var(--text-tertiary);
+        margin-bottom: 1rem;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .875rem 1.5rem;
+        background: var(--surface-muted);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        padding: 1.25rem 1.5rem;
+    }
+    .detail-item {}
+    .detail-label {
+        font-size: .7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: var(--text-tertiary);
+        margin-bottom: .25rem;
+    }
+    .detail-value {
+        font-size: .9rem;
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+    .detail-value.muted { color: var(--text-secondary); font-weight: 400; }
+
+    /* ── Status badge ───────────────────────────────────────────── */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        padding: .25em .7em;
+        border-radius: 999px;
+        font-size: .75rem;
+        font-weight: 500;
+    }
+    .status-badge .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .badge-applied   { background: #fefce8; color: #854d0e; }
+    .badge-applied   .dot { background: #ca8a04; }
+    .badge-interview { background: #eff6ff; color: #1e40af; }
+    .badge-interview .dot { background: #3b82f6; }
+    .badge-selected  { background: #f0fdf4; color: #166534; }
+    .badge-selected  .dot { background: #16a34a; }
+    .badge-rejected  { background: #fef2f2; color: #991b1b; }
+    .badge-rejected  .dot { background: #ef4444; }
+    .badge-default   { background: #f3f4f6; color: #374151; }
+    .badge-default   .dot { background: #9ca3af; }
+
+    /* ── Footer / actions ───────────────────────────────────────── */
+    .confirm-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.5rem;
+        border-top: 1px solid var(--border-subtle);
+        background: var(--surface-muted);
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    /* Danger submit button */
+    .btn-danger-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        background: var(--danger);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-input);
+        font-size: .875rem;
+        font-weight: 500;
+        padding: .55rem 1.4rem;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background .15s ease, box-shadow .15s ease;
+        box-shadow: 0 1px 3px rgba(220,38,38,.2);
+    }
+    .btn-danger-cta:hover {
+        background: var(--danger-hover);
+        color: #fff;
+        box-shadow: 0 3px 10px rgba(220,38,38,.3);
+    }
+    .btn-danger-cta svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* Back link */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        font-size: .8125rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color .15s ease;
+    }
+    .back-link:hover { color: #2563eb; }
+    .back-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+</style>
+
+<div class="container pt-page">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+
+            <!-- Page header -->
+            <div class="page-header">
+                <h1 class="page-title">Delete Application</h1>
+                <p class="page-subtitle">Review the record below before confirming removal</p>
+            </div>
+
+            <!-- Confirmation card -->
+            <div class="confirm-card">
+
+                <!-- Warning banner -->
+                <div class="warning-banner">
+                    <div class="warning-icon">
+                        <!-- Exclamation triangle icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             stroke-width="1.75" stroke="currentColor" style="color:#dc2626;">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="warning-title">This action is irreversible</p>
+                        <p class="warning-desc">
+                            Deleting this application permanently removes it from your records.
+                            This cannot be undone.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Application details -->
+                <div class="details-section">
+                    <p class="section-eyebrow">Application to be deleted</p>
+
+                    <div class="detail-grid">
+
+                        <!-- Company Name -->
+                        <div class="detail-item">
+                            <p class="detail-label">Company</p>
+                            <p class="detail-value">@Model.CompanyName</p>
+                        </div>
+
+                        <!-- Job Role -->
+                        <div class="detail-item">
+                            <p class="detail-label">Role</p>
+                            <p class="detail-value">@Model.JobRole</p>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="detail-item">
+                            <p class="detail-label">Status</p>
+                            @{
+                                string badgeClass = Model.Status switch
+                                {
+                                    "Applied"   => "badge-applied",
+                                    "Interview" => "badge-interview",
+                                    "Selected"  => "badge-selected",
+                                    "Rejected"  => "badge-rejected",
+                                    _           => "badge-default"
+                                };
+                            }
+                            <span class="status-badge @badgeClass">
+                                <span class="dot"></span>
+                                @Model.Status
+                            </span>
+                        </div>
+
+                        <!-- Date Applied -->
+                        <div class="detail-item">
+                            <p class="detail-label">Date Applied</p>
+                            <p class="detail-value muted">@Model.AppliedDate.ToString("dd MMM yyyy")</p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Actions footer -->
+                <div class="confirm-footer">
+                    <a asp-action="Index" class="back-link" id="btn-cancel-delete">
+                        <!-- Arrow-left icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/>
+                        </svg>
+                        Cancel, go back
+                    </a>
+
+                    <form asp-action="Delete" method="post" id="delete-confirm-form">
+                        <input type="hidden" asp-for="Id" />
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn-danger-cta" id="btn-confirm-delete">
+                            <!-- Trash icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 stroke-width="1.75" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
+                            </svg>
+                            Yes, delete permanently
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

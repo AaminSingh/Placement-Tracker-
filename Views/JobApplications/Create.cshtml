@@ -1,0 +1,252 @@
+﻿@model PlacementTracker.Models.JobApplication
+
+@{
+    ViewData["Title"] = "Add Application";
+}
+
+<style>
+    /* ── Design tokens ──────────────────────────────────────────── */
+    :root {
+        --border-subtle  : #e5e7eb;
+        --text-primary   : #111827;
+        --text-secondary : #6b7280;
+        --text-tertiary  : #9ca3af;
+        --surface        : #ffffff;
+        --surface-muted  : #f9fafb;
+        --accent         : #2563eb;
+        --accent-hover   : #1d4ed8;
+        --radius-card    : 10px;
+        --radius-input   : 7px;
+    }
+
+    .pt-page { padding-top: 2rem; padding-bottom: 3rem; }
+
+    /* ── Page header ────────────────────────────────────────────── */
+    .page-header {
+        border-bottom: 1px solid var(--border-subtle);
+        padding-bottom: 1.25rem;
+        margin-bottom: 1.75rem;
+    }
+    .page-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        letter-spacing: -.015em;
+        margin: 0;
+    }
+    .page-subtitle {
+        font-size: .8125rem;
+        color: var(--text-secondary);
+        margin: .2rem 0 0;
+    }
+
+    /* ── Form card ──────────────────────────────────────────────── */
+    .form-card {
+        background: var(--surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-card);
+        overflow: hidden;
+    }
+    .form-card-inner { padding: 2rem 2rem 1.75rem; }
+
+    /* ── Section dividers ───────────────────────────────────────── */
+    .form-section-label {
+        font-size: .6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .09em;
+        color: var(--text-secondary);
+        padding-bottom: .75rem;
+        border-bottom: 1px solid var(--border-subtle);
+        margin-bottom: 1.25rem;
+    }
+
+    /* ── Field labels ───────────────────────────────────────────── */
+    .field-label {
+        font-size: .75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        color: var(--text-secondary);
+        margin-bottom: .4rem;
+        display: block;
+    }
+    .field-hint {
+        font-size: .75rem;
+        color: var(--text-tertiary);
+        margin-top: .3rem;
+    }
+
+    /* ── Inputs ─────────────────────────────────────────────────── */
+    .form-control, .form-select {
+        border-radius: var(--radius-input);
+        border: 1px solid var(--border-subtle);
+        font-size: .875rem;
+        color: var(--text-primary);
+        background: var(--surface);
+        padding: .6rem .875rem;
+        transition: border-color .15s ease, box-shadow .15s ease;
+        box-shadow: none;
+    }
+    .form-control::placeholder { color: var(--text-tertiary); font-size: .85rem; }
+    .form-control:focus, .form-select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+        outline: none;
+    }
+    textarea.form-control { resize: vertical; min-height: 88px; }
+
+    /* ── Validation ─────────────────────────────────────────────── */
+    .field-error { font-size: .75rem; color: #dc2626; margin-top: .3rem; display: block; }
+
+    /* ── Form footer ────────────────────────────────────────────── */
+    .form-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 2rem;
+        border-top: 1px solid var(--border-subtle);
+        background: var(--surface-muted);
+        gap: 1rem;
+    }
+
+    /* ── Buttons ────────────────────────────────────────────────── */
+    .btn-primary-cta {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-input);
+        font-size: .875rem;
+        font-weight: 500;
+        padding: .55rem 1.5rem;
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        cursor: pointer;
+        transition: background .15s ease, box-shadow .15s ease;
+        text-decoration: none;
+    }
+    .btn-primary-cta:hover {
+        background: var(--accent-hover);
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(37,99,235,.28);
+    }
+    .btn-primary-cta svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ── Back link ──────────────────────────────────────────────── */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        font-size: .8125rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color .15s ease;
+    }
+    .back-link:hover { color: var(--accent); }
+    .back-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+</style>
+
+<div class="container pt-page">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-9 col-lg-7">
+
+            <!-- Page header -->
+            <div class="page-header d-flex align-items-start justify-content-between flex-wrap gap-3">
+                <div>
+                    <h1 class="page-title">New Application</h1>
+                    <p class="page-subtitle">Record a job application to your pipeline</p>
+                </div>
+            </div>
+
+            <!-- Form card -->
+            <div class="form-card">
+                <form asp-action="Create" id="create-application-form">
+
+                    <div class="form-card-inner">
+
+                        <!-- Section: Role Details -->
+                        <p class="form-section-label">Role Details</p>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-sm-6">
+                                <label asp-for="CompanyName" class="field-label">Company Name</label>
+                                <input asp-for="CompanyName"
+                                       class="form-control"
+                                       placeholder="e.g. Google, Infosys, Wipro"
+                                       id="input-company-name" />
+                                <span asp-validation-for="CompanyName" class="field-error"></span>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <label asp-for="JobRole" class="field-label">Job Role</label>
+                                <input asp-for="JobRole"
+                                       class="form-control"
+                                       placeholder="e.g. Software Engineer"
+                                       id="input-job-role" />
+                                <span asp-validation-for="JobRole" class="field-error"></span>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-12 col-sm-6">
+                                <label asp-for="Status" class="field-label">Status</label>
+                                <select asp-for="Status" class="form-select" id="input-status">
+                                    <option value="" disabled selected>Select status</option>
+                                    <option value="Applied">Applied</option>
+                                    <option value="Interview">Interview</option>
+                                    <option value="Selected">Selected</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                                <span asp-validation-for="Status" class="field-error"></span>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <label asp-for="AppliedDate" class="field-label">Date Applied</label>
+                                <input asp-for="AppliedDate"
+                                       type="date"
+                                       class="form-control"
+                                       id="input-applied-date" />
+                                <span asp-validation-for="AppliedDate" class="field-error"></span>
+                            </div>
+                        </div>
+
+                        <!-- Section: Additional Info -->
+                        <p class="form-section-label">Additional Information</p>
+
+                        <div class="mb-1">
+                            <label asp-for="Notes" class="field-label">
+                                Notes
+                                <span class="fw-normal text-muted ms-1" style="text-transform:none; letter-spacing:0;">(optional)</span>
+                            </label>
+                            <textarea asp-for="Notes"
+                                      class="form-control"
+                                      placeholder="Referral contact, interview rounds, deadline, recruiter name..."
+                                      id="input-notes"></textarea>
+                            <span asp-validation-for="Notes" class="field-error"></span>
+                        </div>
+
+                    </div>
+
+                    <!-- Form footer / actions -->
+                    <div class="form-footer">
+                        <a asp-action="Index" class="back-link" id="btn-back-to-list">
+                            <!-- Arrow-left icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/>
+                            </svg>
+                            Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn-primary-cta" id="btn-submit-create">
+                            <!-- Check icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                            </svg>
+                            Save Application
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
